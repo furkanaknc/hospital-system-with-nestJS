@@ -53,12 +53,12 @@ export class DoctorService {
   async updateDoctor(
     id: number,
     data: Partial<Doctor>,
-    userRole: string,
+    user: any,
   ): Promise<Doctor | null> {
     try {
-      if (userRole !== 'doctor') {
+      if (user.id !== id || user.role !== 'doctor') {
         throw new UnauthorizedException(
-          'Only doctors can update doctor information',
+          'Only doctors can update their own information',
         );
       }
 
@@ -66,7 +66,7 @@ export class DoctorService {
         data.password = await hash(data.password, 10);
       }
 
-      const updatedDoctor = await this.prisma.doctor.update({
+      const updatedDoctor = await this.prisma.patient.update({
         where: { id },
         data,
       });

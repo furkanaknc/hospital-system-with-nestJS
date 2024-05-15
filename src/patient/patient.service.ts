@@ -52,12 +52,12 @@ export class PatientService {
   async updatePatient(
     id: number,
     data: Partial<Patient>,
-    userRole: string,
+    user: any,
   ): Promise<Patient | null> {
     try {
-      if (userRole !== 'patient') {
+      if (user.id !== id || user.role !== 'patient') {
         throw new UnauthorizedException(
-          'Only patients can update patient information',
+          'Only patients can update their own information',
         );
       }
 

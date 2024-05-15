@@ -42,7 +42,7 @@ model Patient {
 
 model Clinic {
   id          Int           @id @default(autoincrement())
-  name        String
+  name        String        @unique
   date        DateTime      @default(now())
   doctor      Doctor        @relation(fields: [doctorId], references: [id])
   doctorId    Int
@@ -53,6 +53,7 @@ model Clinic {
 
 model Appointment {
   id        Int      @id @default(autoincrement())
+  name      String
   date      DateTime @default(now())
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
   doctorId  Int

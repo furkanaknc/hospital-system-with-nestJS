@@ -83,13 +83,13 @@ export class PatientController {
   ): Promise<Patient> {
     try {
       const user = req.user;
-      if (!user || !user.role) {
-        throw new UnauthorizedException('Invalid user or user role missing');
+      if (!user) {
+        throw new UnauthorizedException('Invalid user');
       }
       const updatedPatient = await this.patientService.updatePatient(
         id,
         updatePatientDto,
-        user.role,
+        user,
       );
       if (!updatedPatient) {
         throw new NotFoundException('Patient not found');
