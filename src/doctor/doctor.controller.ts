@@ -44,6 +44,18 @@ export class DoctorController {
     return doctor;
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get all doctors' })
+  @UseGuards(JwtGuard)
+  @Get()
+  async getAllDoctors(@Req() req: any): Promise<Doctor[]> {
+    const user = req.user;
+    if (user && user.role === 'admin') {
+      return this.doctorService.getAllDoctors();
+    }
+    throw new UnauthorizedException('Only admins can access all doctors.');
+  }
+
   // Bu method ile sadece adminler 'doctor' kullanıcı oluşturabiliyor
   // database modelinde atadığım 'role' özelliği sayesinde filtrelemem kolaylaştı.
   // 'register' methodu ile sisteme üye olan kullanıcılar sadece 'patient' rolunü alabilir olmalı ki sistemde hata olmasın.
