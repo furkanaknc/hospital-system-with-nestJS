@@ -44,10 +44,10 @@ model Clinic {
   id          Int           @id @default(autoincrement())
   name        String        @unique
   date        DateTime      @default(now())
-  doctor      Doctor        @relation(fields: [doctorId], references: [id])
-  doctorId    Int
-  patient     Patient       @relation(fields: [patientId], references: [id])
-  patientId   Int
+  doctor      Doctor?        @relation(fields: [doctorId], references: [id])
+  doctorId    Int?
+  patient     Patient?       @relation(fields: [patientId], references: [id])
+  patientId   Int?
   appointment Appointment[]
 }
 

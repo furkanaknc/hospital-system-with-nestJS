@@ -27,6 +27,7 @@ export class AuthController {
 
   */
 
+  // böylelikle kayıt olan her kullanıcı default olarak 'patient' oluyor
   @ApiOperation({ summary: 'register' })
   @Post('register')
   async register(@Body() dto: CreatePatientDto) {
