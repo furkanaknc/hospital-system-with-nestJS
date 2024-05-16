@@ -35,12 +35,10 @@ export class DoctorService {
     if (user) throw new ConflictException('email duplicated');
 
     const hashedPassword = await hash(dto.password, 10);
-    const currentDate = new Date();
     const newDoctor = await this.prisma.doctor.create({
       data: {
         ...dto,
         password: hashedPassword,
-        date: currentDate,
       },
     });
 
@@ -74,7 +72,7 @@ export class DoctorService {
       return updatedDoctor;
     } catch (error) {
       if (error.code === 'P2025') {
-        throw new NotFoundException('Doctor not found');
+        throw new NotFoundException('Patient not found');
       } else {
         throw error;
       }

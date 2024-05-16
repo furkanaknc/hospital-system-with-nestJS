@@ -34,12 +34,10 @@ export class PatientService {
     if (user) throw new ConflictException('email duplicated');
 
     const hashedPassword = await hash(dto.password, 10);
-    const currentDate = new Date();
     const newPatient = await this.prisma.patient.create({
       data: {
         ...dto,
         password: hashedPassword,
-        date: currentDate,
       },
     });
 
