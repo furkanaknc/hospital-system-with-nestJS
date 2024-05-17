@@ -24,8 +24,8 @@ model Doctor {
   password    String
   role        String        @default("doctor")
   clinics     Clinic[]
-  date        DateTime
   appointment Appointment[]
+  date        DateTime[]
 }
 
 model Patient {
@@ -36,17 +36,16 @@ model Patient {
   password    String
   role        String        @default("patient")
   clinics     Clinic[]
-  date        DateTime
   appointment Appointment[]
+  date DateTime[]
 }
 
 model Clinic {
   id          Int           @id @default(autoincrement())
   name        String        @unique
-  date        DateTime      @default(now())
-  doctor      Doctor?        @relation(fields: [doctorId], references: [id])
+  doctor      Doctor?       @relation(fields: [doctorId], references: [id])
   doctorId    Int?
-  patient     Patient?       @relation(fields: [patientId], references: [id])
+  patient     Patient?      @relation(fields: [patientId], references: [id])
   patientId   Int?
   appointment Appointment[]
 }
@@ -54,11 +53,12 @@ model Clinic {
 model Appointment {
   id        Int      @id @default(autoincrement())
   name      String
-  date      DateTime @default(now())
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  doctorId  Int
-  patient   Patient  @relation(fields: [patientId], references: [id])
-  patientId Int
+  date      DateTime 
+  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId  Int?
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId Int?
   clinic    Clinic   @relation(fields: [clinicId], references: [id])
   clinicId  Int
+   @@unique([doctorId, clinicId, date])
 }
