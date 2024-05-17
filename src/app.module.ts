@@ -13,6 +13,8 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { ClinicModule } from './clinic/clinic.module';
+import { AppointmentService } from './appointment/appointment.service';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -23,8 +25,15 @@ import { ClinicModule } from './clinic/clinic.module';
     SwaggerModule,
     AuthModule,
     ClinicModule,
+    AppointmentModule,
   ],
   controllers: [AppController, AdminController, PatientController],
-  providers: [AppService, PatientService, JwtService, AuthService],
+  providers: [
+    AppService,
+    PatientService,
+    JwtService,
+    AuthService,
+    AppointmentService,
+  ],
 })
 export class AppModule {}
