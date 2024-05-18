@@ -6,10 +6,24 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { Appointment } from '@prisma/client';
 import { CreateAppointmentDto } from './dto/createAppointment.dto';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AppointmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  private transporter: nodemailer.Transporter;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+  }
 
   async createAppointment(
     createAppointmentDto: CreateAppointmentDto,
@@ -82,6 +96,8 @@ export class AppointmentService {
         clinic: { connect: { id: clinicId } },
       },
     });
+
+    await this.sendAppointmentConfirmationEmail(patientId, appointment);
 
     return appointment;
   }
@@ -203,6 +219,11 @@ export class AppointmentService {
       where: { id },
     });
 
+    await this.sendAppointmentCancellationEmail(
+      appointment.patientId,
+      appointment,
+    );
+
     return appointment;
   }
 
@@ -249,5 +270,53 @@ export class AppointmentService {
 
   private sanitizeDateString(dateString: string): string {
     return dateString.endsWith('Z') ? dateString.slice(0, -1) : dateString;
+  }
+  //Bu methodlar ile mail yollayıp hastaları bilgilendiriyoruz. bunun için nodemailler kullandım.
+  private async sendAppointmentConfirmationEmail(
+    patientId: number,
+    appointment: Appointment,
+  ): Promise<void> {
+    const patient = await this.prisma.patient.findUnique({
+      where: { id: patientId },
+    });
+
+    if (!patient || !patient.email) {
+      throw new NotFoundException('Patient email not found.');
+    }
+
+    const name = patient.firstName + ' ' + patient.lastName;
+
+    const mailOptions = {
+      from: process.env.GMAIL_USER,
+      to: patient.email,
+      subject: 'Appointment Confirmation',
+      text: `Dear ${name},\n\nYour appointment is confirmed for ${appointment.date}.\n\nThank you!`,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  private async sendAppointmentCancellationEmail(
+    patientId: number,
+    appointment: Appointment,
+  ): Promise<void> {
+    const patient = await this.prisma.patient.findUnique({
+      where: { id: patientId },
+    });
+
+    if (!patient || !patient.email) {
+      throw new NotFoundException('Patient email not found.');
+    }
+
+    const name = patient.firstName + ' ' + patient.lastName;
+
+    const mailOptions = {
+      from: process.env.GMAIL_USER,
+      to: patient.email,
+      subject: 'Appointment Confirmation',
+      text: `Dear ${name},\n\nYour appointment scheduled for ${appointment.date} has been canceled.\n\nThank you!`,
+    };
+
+    await this.transporter.sendMail(mailOptions);
   }
 }
