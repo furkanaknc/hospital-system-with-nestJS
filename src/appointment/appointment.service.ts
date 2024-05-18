@@ -24,10 +24,10 @@ export class AppointmentService {
       throw new ConflictException('Specified clinic does not exist.');
     }
 
-    // burada zamanı UTC+3 zaman dilimine çeviriyoruz.
-    const convertedDate = this.convertToUTCPlus3(new Date(date));
+    const sanitizedDate = this.sanitizeDateString(date);
+    const convertedDate = this.convertToUTCPlus3(new Date(sanitizedDate));
 
-    if (!this.isWeekday(new Date(date))) {
+    if (!this.isWeekday(new Date(sanitizedDate))) {
       throw new ConflictException('Appointments can only be made on weekdays.');
     }
 
@@ -245,5 +245,9 @@ export class AppointmentService {
   private isWeekday(date: Date): boolean {
     const day = date.getDay();
     return day !== 0 && day !== 6;
+  }
+
+  private sanitizeDateString(dateString: string): string {
+    return dateString.endsWith('Z') ? dateString.slice(0, -1) : dateString;
   }
 }
