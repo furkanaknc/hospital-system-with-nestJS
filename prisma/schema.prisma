@@ -23,9 +23,9 @@ model Doctor {
   email       String        @unique
   password    String
   role        String        @default("doctor")
-  clinics     Clinic[]
+  //clinics     Clinic[]
   appointment Appointment[]
-  date        DateTime[]
+  //date        DateTime[]
 }
 
 model Patient {
@@ -35,18 +35,18 @@ model Patient {
   email       String        @unique
   password    String
   role        String        @default("patient")
-  clinics     Clinic[]
+  //clinics     Clinic[]
   appointment Appointment[]
-  date DateTime[]
+  //date DateTime[]
 }
 
 model Clinic {
   id          Int           @id @default(autoincrement())
   name        String        @unique
-  doctor      Doctor?       @relation(fields: [doctorId], references: [id])
-  doctorId    Int?
-  patient     Patient?      @relation(fields: [patientId], references: [id])
-  patientId   Int?
+  //doctor      Doctor?       @relation(fields: [doctorId], references: [id])
+  //doctorId    Int?
+  //patient     Patient?      @relation(fields: [patientId], references: [id])
+  //patientId   Int?
   appointment Appointment[]
 }
 

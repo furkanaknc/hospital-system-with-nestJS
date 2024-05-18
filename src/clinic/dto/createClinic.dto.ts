@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsInt, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClinicDto {
@@ -6,14 +6,4 @@ export class CreateClinicDto {
   @IsNotEmpty()
   @IsString()
   name: string;
-
-  @ApiProperty({ description: 'ID of the doctor associated with the clinic' })
-  @IsOptional()
-  @IsInt()
-  doctorId?: number;
-
-  @ApiProperty({ description: 'ID of the patient associated with the clinic' })
-  @IsOptional()
-  @IsInt()
-  patientId?: number;
 }
