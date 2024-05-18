@@ -1,4 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Appointment } from '@prisma/client';
 import { CreateAppointmentDto } from './dto/createAppointment.dto';
@@ -19,7 +23,8 @@ export class AppointmentService {
     if (!clinic) {
       throw new ConflictException('Specified clinic does not exist.');
     }
-    // UTC+3 zaman dilimine çeviriyoruz
+
+    // burada zamanı UTC+3 zaman dilimine çeviriyoruz.
     const convertedDate = this.convertToUTCPlus3(new Date(date));
 
     if (!this.isWeekday(new Date(date))) {
@@ -162,11 +167,80 @@ export class AppointmentService {
     return true;
   }
 
-  //Prisma default olarak utc zaman diliminde gönderiyor. bu zaman karmamşasının önüne geçmek için utc+3 formatına çeviren method
+  /*
+   başta 'patient'ların aynı zamanda iki farklı randevu almalarını kontrol etmek için-
+   böyle bir method geliştirmiştim ama gerek kalmadı yine de görmeniz için bunu da silmedim.
+
+   New method to check if a patient has another appointment at the same time
+   private async hasPatientConflict(
+     patientId: number,
+     date: string,
+   ): Promise<boolean> {
+     const appointmentDate = new Date(date);
+
+     const existingAppointment = await this.prisma.appointment.findFirst({
+       where: {
+         patientId,
+         date: appointmentDate.toISOString(),
+       },
+     });
+
+     return !!existingAppointment;
+   }
+
+  */
+
+  async deleteAppointment(id: number): Promise<Appointment> {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Appointment with ID ${id} not found.`);
+    }
+
+    await this.prisma.appointment.delete({
+      where: { id },
+    });
+
+    return appointment;
+  }
+
+  async getAppointmentById(id: number): Promise<Appointment> {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Appointment with ID ${id} not found.`);
+    }
+
+    return appointment;
+  }
+
+  async getAppointmentsByPatientId(patientId: number): Promise<Appointment[]> {
+    return this.prisma.appointment.findMany({
+      where: { patientId },
+    });
+  }
+
+  async getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]> {
+    return this.prisma.appointment.findMany({
+      where: { doctorId },
+    });
+  }
+
+  async getAllAppointments(): Promise<Appointment[]> {
+    return this.prisma.appointment.findMany();
+  }
+
+  // Prisma databaseye zamanı default olarak UTC zaman diliminde gönderiyor.
+  // bu method sayesinde UTC+3 zaman diliminde gönderiyoruz.
   private convertToUTCPlus3(date: Date): string {
     const utcDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
     return utcDate.toISOString();
   }
+
   //Hafta içlerini kontrol etmek için method
   private isWeekday(date: Date): boolean {
     const day = date.getDay();
